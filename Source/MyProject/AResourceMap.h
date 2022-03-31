@@ -27,6 +27,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;// Sets default values for this actor's properties
 	AResourceMap();
+	UFUNCTION(BlueprintCallable)
+	void SwapMapData();
 	UPROPERTY(BlueprintReadWrite)
 	int Width;
 	UPROPERTY(BlueprintReadWrite)

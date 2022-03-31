@@ -4,12 +4,17 @@
 #include "AResourceMap.h"
 
 // Sets default values
-AResourceMap::AResourceMap(): Width(128), Height(128)
+AResourceMap::AResourceMap(): Width(32), Height(32)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Data.Init(0, Width * Height);
 	DataSwap.Init(0, Width * Height);
+}
+
+void AResourceMap::SwapMapData()
+{
+	std::swap(Data, DataSwap);
 }
 
 // Called every frame
@@ -18,7 +23,7 @@ void AResourceMap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	Rebalance(DeltaTime);
-	std::swap(Data, DataSwap);
+	SwapMapData();
 }
 
 constexpr int AResourceMap::InlineCoords(int x, int y) const
@@ -56,7 +61,9 @@ void AResourceMap::BalanceSingleCell(int x, int y, float dT)
 	const auto yMin = y - 1 < 0 ? y : y - 1;
 	const auto xMax = x + 1 >= Width ? x : x + 1;
 	const auto yMax = y + 1 >= Height ? y : y + 1;
-	char distribution = (xMax - xMin) * (yMax - yMin) - 1;
+	const char distribution = (xMax - xMin) * (yMax - yMin) - 1;
+	if(distribution==0)
+		return;
 	for (int yOffset = yMin; yOffset < yMax; ++yOffset)
 	{
 		for (int xOffset = xMin; xOffset < xMax; ++xOffset)
