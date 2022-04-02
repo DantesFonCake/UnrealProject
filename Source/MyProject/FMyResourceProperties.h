@@ -7,6 +7,8 @@ USTRUCT(BlueprintType)
 struct FMyResourceProperties
 {
     GENERATED_BODY()
+    FMyResourceProperties();
+    FMyResourceProperties(float FlowSpeed);
 
     UPROPERTY(BlueprintReadWrite,EditAnywhere)
     float FlowSpeed;

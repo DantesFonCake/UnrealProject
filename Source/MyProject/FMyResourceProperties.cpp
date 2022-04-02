@@ -3,3 +3,11 @@
 //
 
 #include "FMyResourceProperties.h"
+
+FMyResourceProperties::FMyResourceProperties():FlowSpeed(1)
+{
+}
+
+FMyResourceProperties::FMyResourceProperties(float FlowSpeed):FlowSpeed(FlowSpeed)
+{
+}
