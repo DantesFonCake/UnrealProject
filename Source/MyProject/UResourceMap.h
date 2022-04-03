@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BoundaryCondition.h"
 #include "FMyResourceProperties.h"
 #include "UResourceMap.generated.h"
 
@@ -14,11 +15,27 @@ class MYPROJECT_API UResourceMap : public UObject
 protected:
 	// Called when the game starts or when spawned
 	UPROPERTY()
-	TArray<float> Data;
+	TArray<float> Phi;
 	UPROPERTY()
-	TArray<float> Delta;
+	TArray<float> Psi;
+	UPROPERTY()
+	TArray<float> Phi2;
+	UPROPERTY()
+	TArray<float> Psi2;
 	UPROPERTY(BlueprintReadWrite)
 	bool IsInitialized;
+	UPROPERTY(BlueprintReadWrite)
+	bool bOscillateLeft;
+	UPROPERTY(BlueprintReadWrite)
+	float OscillationAmplitude;
+	UPROPERTY(BlueprintReadWrite)
+	float OscillationFrequency;
+	UPROPERTY(BlueprintReadWrite)
+	TEnumAsByte<BoundaryCondition> Boundary;
+	UPROPERTY(BlueprintReadWrite)
+	bool bUseResourceMax;
+	UPROPERTY(BlueprintReadWrite)
+	float ResourceMax;
 
 	virtual void FillSingeCellDelta(int X, int Y, float DeltaTime);
 	constexpr int InlineCoords(int X, int Y) const;
@@ -26,7 +43,11 @@ protected:
 
 public:
 	UFUNCTION(BlueprintCallable)
-	void Initialize(int Width, int Height, FMyResourceProperties ResourceProperties);
+	void Initialize(const int NewWidth, const int NewHeight,
+							  const FMyResourceProperties NewResourceProperties,
+							  const bool IsOscillateLeft, const float NewOscillationAmplitude,
+							  const BoundaryCondition NewBoundaryCondition, const bool IsUsingResourceMax,
+							  const float NewResourceMax,const float NewOscillationFrequency);
 	UResourceMap();
 	UPROPERTY(BlueprintReadWrite)
 	int Width;
@@ -48,11 +69,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ClearDelta();
 	UFUNCTION(BlueprintCallable)
-	virtual void Rebalance(float DeltaTime);
-	virtual const float& At(int X, int Y) const;
-	virtual const float& DeltaAt(int X, int Y) const;
+	virtual void EqualDistributionRebalance(float DeltaTime);
 	UFUNCTION(BlueprintCallable)
-	virtual float& DeltaAt(int X, int Y);
+	virtual void WaveRebalance(float DeltaTime);
+	void evolve_wave_half(TArray<float>& phi_in, TArray<float>& psi_in, TArray<float>& phi_out, TArray<float>& psi_out);
+	virtual const float& At(int X, int Y) const;
+	virtual const float& PsiAt(int X, int Y) const;
+	UFUNCTION(BlueprintCallable)
+	virtual float& PsiAt(int X, int Y);
 	UFUNCTION(BlueprintCallable)
 	virtual float& At(int X, int Y);
 
