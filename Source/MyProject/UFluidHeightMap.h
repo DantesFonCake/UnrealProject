@@ -6,15 +6,18 @@ class UFluidHeightMap : public UDiffuseEqualisationHeightMap
 {
 	GENERATED_BODY()
 protected:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TArray<float> V;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TArray<float> U;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TArray<float> V0;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	TArray<float> U0;
 public:
 	virtual void Rebalance(float DeltaTime) override;
+	virtual void PrepareSources();
+	UFUNCTION(BlueprintCallable)
+	virtual void FluidStep(float DeltaTime);
 	virtual void Initialize(int NewMapSize, FMyResourceProperties NewProps) override;
 };

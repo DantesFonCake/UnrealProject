@@ -7,10 +7,20 @@ class UDiffuseEqualisationHeightMap : public UStaticHeightMap
 {
 	GENERATED_BODY()
 protected:
-	UPROPERTY()
-	TArray<float> D0;
+	UPROPERTY(BlueprintReadWrite)
+	TArray<float> Future;
+	float Difference(int x, int y, int x1, int y1, const TArray<float>& Source, const TArray<float>& GroundLevel) const;
+	void Pull(int x, int y, int x1, int y1, float d);
+	inline float PushDiff(int x, int y, int x1, int y1, const TArray<float>& Source,
+													   const TArray<float>& GroundLevel) const;
 public:
 	UFUNCTION(BlueprintCallable)
-	virtual void Rebalance(float DeltaTime); 
+	virtual void Rebalance(float DeltaTime);
+	UFUNCTION(BlueprintCallable)
+	virtual void RebalanceWithGround(float DeltaTime, const TArray<float>& GroundLevel);
+	UFUNCTION(BlueprintCallable)
+	virtual void Diffuse(float DeltaTime);
+	UFUNCTION(BlueprintCallable)
+	virtual void DiffuseWithGround(float DeltaTime, const TArray<float>& GroundLevel);
 	virtual void Initialize(int NewMapSize, FMyResourceProperties NewProps) override;
 };

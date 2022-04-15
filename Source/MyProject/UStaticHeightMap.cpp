@@ -2,40 +2,39 @@
 
 UStaticHeightMap::UStaticHeightMap(int MapSize, FMyResourceProperties& Props):MapSize(MapSize),Props(Props)
 {
-	D.Init(0,GetFlatArraySize());
+	Amount.Init(0,GetFlatArraySize());
 }
 
 void UStaticHeightMap::Initialize(int NewMapSize, FMyResourceProperties NewProps)
 {
 	MapSize=NewMapSize;
 	//UE_LOG(LogTemp,Warning,TEXT("Array size {%d}"),GetFlatArraySize());
-	D.Init(0,GetFlatArraySize());
+	Amount.Init(0,GetFlatArraySize());
 	this->Props=NewProps;
-}
-
-
-constexpr int UStaticHeightMap::InlineCoords(const int X, const int Y) const
-{
-	return Y * (MapSize+2) + X;
 }
 
 float& UStaticHeightMap::At(const int X, const int Y)
 {
 	//UE_LOG(LogTemp,Warning,TEXT("Accessing tile at {%d, %d}"),x,y);
 	//return D[0];
-	return D[InlineCoords(X, Y)];
+	return Amount[InlineCoords(X, Y)];
+}
+
+const TArray<float>& UStaticHeightMap::GetData()
+{
+	return Amount;
 }
 
 const float& UStaticHeightMap::At(const int X, const int Y) const
 {
 	//UE_LOG(LogTemp,Warning,TEXT("Accessing const tile at {%d, %d}"),x,y);
-	return D[InlineCoords(X, Y)];
+	return Amount[InlineCoords(X, Y)];
 }
 
 void UStaticHeightMap::InitializeLevel(const float Level)
 {
 	const auto length = (MapSize + 2) * (MapSize + 2);
-	D.Init(Level, length);
+	Amount.Init(Level, length);
 }
 
 void UStaticHeightMap::SetResourceLevel(const int X, const int Y, const float NewLevel)
