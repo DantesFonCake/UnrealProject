@@ -15,7 +15,7 @@ protected:
 	UPROPERTY(BlueprintReadWrite)
 	TArray<float> U0;
 public:
-	virtual void Rebalance(float DeltaTime) override;
+	virtual void Rebalance(float DeltaTime, const TArray<float>& GroundLevel, const TArray<float>& DiffuseMap) override;
 	virtual void PrepareSources();
 	UFUNCTION(BlueprintCallable)
 	virtual void FluidStep(float DeltaTime);

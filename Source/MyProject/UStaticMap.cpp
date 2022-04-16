@@ -1,11 +1,11 @@
-﻿#include "UStaticHeightMap.h"
+﻿#include "UStaticMap.h"
 
-UStaticHeightMap::UStaticHeightMap(int MapSize, FMyResourceProperties& Props):MapSize(MapSize),Props(Props)
+UStaticMap::UStaticMap(const int MapSize, const FMyResourceProperties& Props):MapSize(MapSize),Props(Props)
 {
 	Amount.Init(0,GetFlatArraySize());
 }
 
-void UStaticHeightMap::Initialize(int NewMapSize, FMyResourceProperties NewProps)
+void UStaticMap::Initialize(const int NewMapSize, const FMyResourceProperties NewProps)
 {
 	MapSize=NewMapSize;
 	//UE_LOG(LogTemp,Warning,TEXT("Array size {%d}"),GetFlatArraySize());
@@ -13,41 +13,41 @@ void UStaticHeightMap::Initialize(int NewMapSize, FMyResourceProperties NewProps
 	this->Props=NewProps;
 }
 
-float& UStaticHeightMap::At(const int X, const int Y)
+float& UStaticMap::At(const int X, const int Y)
 {
 	//UE_LOG(LogTemp,Warning,TEXT("Accessing tile at {%d, %d}"),x,y);
 	//return D[0];
 	return Amount[InlineCoords(X, Y)];
 }
 
-const TArray<float>& UStaticHeightMap::GetData()
+const TArray<float>& UStaticMap::GetData()
 {
 	return Amount;
 }
 
-const float& UStaticHeightMap::At(const int X, const int Y) const
+const float& UStaticMap::At(const int X, const int Y) const
 {
 	//UE_LOG(LogTemp,Warning,TEXT("Accessing const tile at {%d, %d}"),x,y);
 	return Amount[InlineCoords(X, Y)];
 }
 
-void UStaticHeightMap::InitializeLevel(const float Level)
+void UStaticMap::InitializeLevel(const float Level)
 {
 	const auto length = (MapSize + 2) * (MapSize + 2);
 	Amount.Init(Level, length);
 }
 
-void UStaticHeightMap::SetResourceLevel(const int X, const int Y, const float NewLevel)
+void UStaticMap::SetLevel(const int X, const int Y, const float NewLevel)
 {
 	At(X, Y) = NewLevel;
 }
 
-void UStaticHeightMap::AddResourceLevel(const int X, const int Y, const float AddLevel)
+void UStaticMap::AddLevel(const int X, const int Y, const float AddLevel)
 {
 	At(X, Y) += AddLevel;
 }
 
-void UStaticHeightMap::SetAreaResourceLevel(const int X, const int Y, const int AreaWidth, const int AreaHeight,
+void UStaticMap::SetAreaLevel(const int X, const int Y, const int AreaWidth, const int AreaHeight,
 										const float NewLevel)
 {
 	const auto xMax = X + AreaWidth;
@@ -61,7 +61,7 @@ void UStaticHeightMap::SetAreaResourceLevel(const int X, const int Y, const int 
 	}
 }
 
-void UStaticHeightMap::AddAreaResourceLevel(const int X, const int Y, const int AreaWidth, const int AreaHeight,
+void UStaticMap::AddAreaLevel(const int X, const int Y, const int AreaWidth, const int AreaHeight,
 										const float AddLevel)
 {
 	const auto xMax = X + AreaWidth;
