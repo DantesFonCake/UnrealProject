@@ -8,10 +8,12 @@ struct FMyResourceProperties
 {
     GENERATED_BODY()
     FMyResourceProperties();
-    FMyResourceProperties(float Diffuse,float Viscosity);
+    FMyResourceProperties(float Diffuse,float Viscosity/*,float HeatCapacity*/);
 
     UPROPERTY(BlueprintReadWrite,EditAnywhere)
     float Diffuse;
     UPROPERTY(BlueprintReadWrite,EditAnywhere)
     float Viscosity;
+    //UPROPERTY(BlueprintReadWrite,EditAnywhere)
+    //float HeatCapacity;
 };
