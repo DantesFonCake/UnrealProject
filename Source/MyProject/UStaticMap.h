@@ -7,7 +7,8 @@ class UStaticMap : public UObject
 {
 	GENERATED_BODY()
 protected:
-	constexpr int GetFlatArraySize() const;
+	UFUNCTION(BlueprintCallable)
+	inline int GetFlatArraySize() const;
 	constexpr int InlineCoords(const int X, const int Y) const;
 	UPROPERTY(BlueprintReadWrite)
 	TArray<float> Amount;
@@ -29,7 +30,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual float& At(int X, int Y);
 	UFUNCTION(BlueprintCallable)
-	virtual const TArray<float>& GetData();
+	virtual void GetData(TArray<float>& OutData);
+	UFUNCTION(BlueprintCallable)
+	virtual float& FlatAt(int Index);
+	UFUNCTION(BlueprintCallable)
+	virtual void FlatSet(int Index, float Value);
 	virtual const float& At(int X, int Y) const;
 	UPROPERTY(BlueprintReadOnly)
 	int MapSize;
@@ -38,7 +43,7 @@ public:
 	
 };
 
-constexpr int UStaticMap::GetFlatArraySize() const
+inline int UStaticMap::GetFlatArraySize() const
 {
 	return  (MapSize+2)*(MapSize+2);
 }
