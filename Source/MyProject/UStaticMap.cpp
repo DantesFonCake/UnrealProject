@@ -35,6 +35,7 @@ void UStaticMap::FlatSet(int Index, float Value)
 	Amount[Index]=Value;
 }
 
+
 const float& UStaticMap::At(const int X, const int Y) const
 {
 	//UE_LOG(LogTemp,Warning,TEXT("Accessing const tile at {%d, %d}"),x,y);

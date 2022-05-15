@@ -114,7 +114,7 @@ void advect(int N, int b, float* d, float* d0, float* u, float* v, float dt)
 		const float t1 = y - j0;
 		const float t0 = 1 - t1;
 		d[IX(i, j)] = s0 * (t0 * d0[IX(i0, j0)] + t1 * d0[IX(i0, j1)]) +
-			s1 * (t0 * d0[IX(i1, j0)] + t1 * d0[IX(i1, j1)]);
+					  s1 * (t0 * d0[IX(i1, j0)] + t1 * d0[IX(i1, j1)]);
 	END_FOR
 	set_bnd(N, b, d);
 }

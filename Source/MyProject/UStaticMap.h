@@ -40,6 +40,27 @@ public:
 	int MapSize;
 	UPROPERTY(BlueprintReadOnly)
 	FMyResourceProperties Props;
+	UFUNCTION(BlueprintCallable)
+	void UpdateBound(int BoundType) {
+		for (int i = 1; i <= MapSize; i++)
+		{
+			Amount[InlineCoords(0, i)] = BoundType == 1 ? -Amount[InlineCoords(1, i)] : Amount[InlineCoords(1, i)];
+			Amount[InlineCoords(MapSize + 1, i)] = BoundType == 1
+				? -Amount[InlineCoords(MapSize, i)]
+				: Amount[InlineCoords(MapSize, i)];
+			Amount[InlineCoords(i, 0)] = BoundType == 2 ? -Amount[InlineCoords(i, 1)] : Amount[InlineCoords(i, 1)];
+			Amount[InlineCoords(i, MapSize + 1)] = BoundType == 2
+				? -Amount[InlineCoords(i, MapSize)]
+				: Amount[InlineCoords(i, MapSize)];
+		}
+		Amount[InlineCoords(0, 0)] = 0.5f * (Amount[InlineCoords(1, 0)] + Amount[InlineCoords(0, 1)]);
+		Amount[InlineCoords(0, MapSize + 1)] = 0.5f * (Amount[InlineCoords(1, MapSize + 1)] + Amount[
+			InlineCoords(0, MapSize)]);
+		Amount[InlineCoords(MapSize + 1, 0)] = 0.5f * (Amount[InlineCoords(MapSize, 0)] + Amount[InlineCoords(
+			MapSize + 1, 1)]);
+		Amount[InlineCoords(MapSize + 1, MapSize + 1)] = 0.5f * (Amount[InlineCoords(MapSize, MapSize + 1)] + Amount[
+			InlineCoords(MapSize + 1, MapSize)]);
+	}
 	
 };
 

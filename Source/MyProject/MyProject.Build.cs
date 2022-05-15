@@ -8,6 +8,15 @@ public class MyProject : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] 
+		{   "Core", 
+			"CoreUObject", 
+			"Engine",
+			"RenderCore"
+		});
+
+		PrivateDependencyModuleNames.AddRange(new string[] { "CustomFluidShader" });
+
+		PrivateIncludePathModuleNames.AddRange(new string[] { "CustomFluidShader" });
 	}
 }
