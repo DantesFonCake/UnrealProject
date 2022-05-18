@@ -131,7 +131,7 @@ void UDiffuseEqualisationHeightMap::Advect(float DeltaTime, TArray<float>&X0, TA
 	int i, j, i0, j0, i1, j1;
 	float x, y, s0, t0, s1, t1, dt0;
 
-	dt0 = 0.016 * MapSize;
+	dt0 = DeltaTime * MapSize;
 	FOR_EACH_CELL
 		x = i - dt0 * U[InlineCoords(i, j)]; y = j - dt0 * V[InlineCoords(i, j)];
 	if (x < 0.5f) x = 0.5f; if (x > MapSize + 0.5f) x = MapSize + 0.5f; i0 = (int)x; i1 = i0 + 1;
