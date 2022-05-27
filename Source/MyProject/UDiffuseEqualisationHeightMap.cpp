@@ -3,8 +3,8 @@
 #include "CustomFluidShader.h"
 #define FOR_EACH_CELL for ( i=1 ; i<=MapSize ; i++ ) { for ( j=1 ; j<=MapSize ; j++ ) {
 #define END_FOR }}
-#define GAUSS_CLAMP(s,x1,y1) if(s>=0) { if(s<=Future[InlineCoords(i,j)]){ totalNet-=GroundLevel[InlineCoords(i,j)]-GroundLevel[InlineCoords(x1,y1)];} c+=a;}
-#define GAUSS_CLAMP_D(s,x1,y1,d) if(s>=0) { if(s<=Future[InlineCoords(i,j)]){ totalNet-=(GroundLevel[InlineCoords(i,j)]-GroundLevel[InlineCoords(x1,y1)])*d;} c+=a*d;}
+#define GAUSS_CLAMP(s,x1,y1) if(s>=0) { if(s<=X[InlineCoords(i,j)]){ totalNet-=GroundLevel[InlineCoords(i,j)]-GroundLevel[InlineCoords(x1,y1)];} c+=a;}
+#define GAUSS_CLAMP_D(s,x1,y1,d) if(s>=0) { if(s<=X[InlineCoords(i,j)]){ totalNet-=(GroundLevel[InlineCoords(i,j)]-GroundLevel[InlineCoords(x1,y1)])*d;} c+=a*d;}
 
 inline void UDiffuseEqualisationHeightMap::SetBound(const int BoundType, TArray<float>& Field) const
 {

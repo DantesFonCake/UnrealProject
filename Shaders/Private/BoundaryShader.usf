@@ -1,0 +1,24 @@
+#include "/Engine/Public/Platform.ush"
+#define IX(x,y) (y * (Size+2) + x)
+RWStructuredBuffer<float> X;
+int Size;
+int BoundType;
+
+
+
+[numthreads(THREADGROUPSIZE_X, 1, 1)]
+void MainComputeShader(uint3 Gid : SV_GroupID, //atm: -, 0...256, - in rows (Y)        --> current group index (dispatched by c++)
+                       uint3 DTid : SV_DispatchThreadID, //atm: 0...256 in rows & columns (XY)   --> "global" thread id
+                       uint3 GTid : SV_GroupThreadID, //atm: 0...256, -,- in columns (X)      --> current threadId in group / "local" threadId
+                       uint GI : SV_GroupIndex)            //atm: 0...256 in columns (X)           --> "flattened" index of a thread within a group)
+{
+    int i = DTid.x+1;
+    X[IX(0, i)] = BoundType == 1 ? -X[IX(1, i)] : X[IX(1, i)];
+    X[IX(Size + 1, i)] = BoundType == 1 ? -X[IX(Size, i)] : X[IX(Size, i)];
+    X[IX(i, 0)] = BoundType == 2 ? -X[IX(i, 1)] : X[IX(i, 1)];
+    X[IX(i, Size + 1)] = BoundType == 2 ? -X[IX(i, Size)] : X[IX(i, Size)];
+    //X[IX(0, 0)] = (X[IX(1, 0)] + X[IX(0, 1)])/2;
+    //X[IX(0, Size + 1)] = 0.5f * (X[IX(1, Size + 1)] + X[IX(0, Size)]);
+    //X[IX(Size + 1, 0)] = 0.5f * (X[IX(Size, 0)] + X[IX(Size + 1, 1)]);
+    //X[IX(Size + 1, Size + 1)] = 0.5f * (X[IX(Size, Size + 1)] + X[IX(Size + 1, Size)]);
+}

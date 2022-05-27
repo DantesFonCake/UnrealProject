@@ -1,0 +1,69 @@
+#include "/Engine/Public/Platform.ush"
+#define IX(x,y) (y * (Size+2) + x)
+#define GAUSS_CLAMP_D(s,x1,y1,d) if(s>=0) { if(s<=X[IX(x,y)]){ totalNet-=(Ground[IX(x,y)]-Ground[IX(x1,y1)])*d;} c+=a*d;}
+RWStructuredBuffer<float> X;
+StructuredBuffer<float> X0;
+StructuredBuffer<float> DiffuseMap;
+StructuredBuffer<float> Ground;
+int Size;
+float DiffuseStat;
+
+float PushDiff(int x, int y, int x1, int y1)
+{
+    float xSource = X[IX(x, y)];
+    float diff = (xSource + Ground[IX(x, y)]) - Ground[IX(x1, y1)];
+    return diff;
+}
+
+void SingleCellDiffuse(int x, int y, float a)
+{
+    float c = 1;
+
+    float totalNet = clamp(PushDiff(x - 1, y, x, y), 0, X[IX(x - 1, y)])
+				* (1 - DiffuseMap[IX(x - 1, y)])
+				+ clamp(PushDiff(x + 1, y, x, y), 0, X[IX(x + 1, y)]) *
+				(1 - DiffuseMap[IX(x + 1, y)])
+				+ clamp(PushDiff(x, y - 1, x, y), 0, X[IX(x, y - 1)]) *
+				(1 - DiffuseMap[IX(x, y - 1)])
+				+ clamp(PushDiff(x, y + 1, x, y), 0, X[IX(x, y + 1)]) *
+				(1 - DiffuseMap[IX(x, y + 1)]);
+
+    float d = 1 - DiffuseMap[IX(x, y)];
+    float lFrom = PushDiff(x, y, x - 1, y);
+    GAUSS_CLAMP_D(lFrom, x - 1, y, d);
+    float rFrom = PushDiff(x, y, x + 1, y);
+    GAUSS_CLAMP_D(rFrom, x + 1, y, d);
+    float uFrom = PushDiff(x, y, x, y - 1);
+    GAUSS_CLAMP_D(uFrom, x, y - 1, d);
+    float dFrom = PushDiff(x, y, x, y + 1);
+    GAUSS_CLAMP_D(dFrom, x, y + 1, d);
+
+    X[IX(x, y)] = (X0[IX(x, y)] + a * totalNet) / c;
+}
+
+[numthreads(THREADGROUPSIZE_X, THREADGROUPSIZE_Y, THREADGROUPSIZE_Z)]
+void MainComputeShader(uint3 Gid : SV_GroupID, //atm: -, 0...256, - in rows (Y)        --> current group index (dispatched by c++)
+                       uint3 DTid : SV_DispatchThreadID, //atm: 0...256 in rows & columns (XY)   --> "global" thread id
+                       uint3 GTid : SV_GroupThreadID, //atm: 0...256, -,- in columns (X)      --> current threadId in group / "local" threadId
+                       uint GI : SV_GroupIndex)            //atm: 0...256 in columns (X)           --> "flattened" index of a thread within a group)
+{
+    int x = DTid.x+1;
+    int y = DTid.y+1;
+    //X[IX(x, y)] += 1;
+    SingleCellDiffuse(x, y, DiffuseStat);
+    //for (int i = 0; i < 20; ++i)
+    //{
+        
+    //    if (x == 1)
+    //        X[IX(0, y)] = X[IX(1, y)];
+    //    if (y == 1)
+    //        X[IX(x, 0)] = X[IX(x, 1)];
+    //    if (x == Size)
+    //        X[IX(Size + 1, y)] = X[IX(Size, y)];
+    //    if (y == Size)
+    //        X[IX(x, Size + 1)] = X[IX(x, Size)];
+            
+    //}
+    //X[IX(x, y)] += 10;
+
+}
