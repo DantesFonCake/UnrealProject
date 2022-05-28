@@ -71,12 +71,20 @@ class UStaticLayer : public UObject  {
 		void SetAmount(const int x, const int y, const float value) {
 			Amount[IX(x, y)] = value;
 			MarkDirty();
+		} UFUNCTION(BlueprintCallable)
+		void AddAmount(const int x, const int y, const float value) {
+			Amount[IX(x, y)] += value;
+			MarkDirty();
 		}
 		 UFUNCTION(BlueprintCallable)
 			 float FlatGetAmount(const int i) const{
 			return Amount[i];
 		}
 		 UFUNCTION(BlueprintCallable)
+		void FlatAddAmount(const int i, const float value) {
+			Amount[i] += value;
+			MarkDirty();
+		}UFUNCTION(BlueprintCallable)
 		void FlatSetAmount(const int i, const float value) {
 			Amount[i] = value;
 			MarkDirty();
