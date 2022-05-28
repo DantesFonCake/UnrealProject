@@ -13,6 +13,11 @@
 			]
 		},
 		{
+			"Name": "ResourceMapModule",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		},
+		{
 			"Name": "CustomFluidShader",
 			"Type": "Runtime",
 			"LoadingPhase": "PostConfigInit",
