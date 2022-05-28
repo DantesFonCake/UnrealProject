@@ -2,6 +2,7 @@
 
 
 #include "ResourceMapRendererPMC.h"
+#include "..\Public\ResourceMapRendererPMC.h"
 
 const float AResourceMapRendererPMC::GroundOffset = 1;
 const float AResourceMapRendererPMC::ZeroEpsilon = 1e-4;
@@ -142,6 +143,11 @@ void AResourceMapRendererPMC::UpdateFromManager()
 		layerMesh->MarkRenderStateDirty();
 		layer->MarkClean();
 	}
+}
+
+UDrawableLayer* AResourceMapRendererPMC::GetLayer(const FName name)
+{
+	return drawableLayers[name];
 }
 
 void AResourceMapRendererPMC::LogStats()

@@ -118,6 +118,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void UpdateFromManager();
 	UFUNCTION(BlueprintCallable)
+	virtual UDrawableLayer* GetLayer(const FName name);
+	UFUNCTION(BlueprintCallable)
 	virtual void LogStats();
 	UFUNCTION(BlueprintCallable)
 	virtual void Clear();
