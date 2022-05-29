@@ -2,10 +2,9 @@
 
 
 #include "ResourceMapRendererPMC.h"
-#include "..\Public\ResourceMapRendererPMC.h"
 
 const float AResourceMapRendererPMC::GroundOffset = 1;
-const float AResourceMapRendererPMC::ZeroEpsilon = 1e-4;
+const float AResourceMapRendererPMC::ZeroEpsilon = 5e-3;
 
 // Sets default values
 AResourceMapRendererPMC::AResourceMapRendererPMC():Size(128),CellSize(32),drawableLayers()
@@ -62,8 +61,9 @@ void AResourceMapRendererPMC::AddLayerDrawable(const FName layerName,bool isDraw
 	auto mesh = NewObject<UInstancedStaticMeshComponent>(this/*, FName(TEXT("ISMC_")+layerName.ToString() + GetNameSafe(this))*/);
 	mesh->SetWorldTransform(this->GetTransform());
 	mesh->SetStaticMesh(Mesh);
+	mesh->bCastDynamicShadow = false;
 	if(material)
-		mesh->SetMaterial(0,material->GetMaterial());
+		mesh->SetMaterial(0,material);
 
 	//mesh->AttachTo(RootComponent);
 	AddInstanceComponent(mesh);

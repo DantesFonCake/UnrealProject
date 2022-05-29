@@ -88,9 +88,9 @@ protected:
 	UResourceMapManager* manager;
 	UPROPERTY()
 	USceneComponent* root;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	int Size;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(EditDefaultsOnly)
 	float CellSize;
 	UPROPERTY(Instanced)
 	TMap<FName, UDrawableLayer*> drawableLayers;
