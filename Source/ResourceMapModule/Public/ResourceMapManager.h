@@ -23,7 +23,7 @@ class UResourceMapManager : public UObject {
 	TMap<FName, UStaticVelocityField*> NamedStaticVelocityFields;
 	UPROPERTY()
 	TArray<TScriptInterface<ITimedLayersProccesor>> ProccesPass;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditDefaultsOnly)
 	int Size;
 	//static const int MeshSectionSize = 16;
 

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "ResourceMapModule.h"
 #include "ResourceMapManager.h"
+#include "PreRenderLayersProccesor.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "ResourceMapRendererPMC.generated.h"
 
@@ -22,8 +23,12 @@ protected:
 	bool isDrawable;
 	UPROPERTY(VisibleAnywhere)
 	bool isDynamic;
+	UPROPERTY(VisibleAnywhere)
+	bool isDirty;
 	UPROPERTY(VisibleAnywhere, Instanced)
 	UInstancedStaticMeshComponent* MeshComponent;
+	UPROPERTY()
+	TArray<FTransform> transformsBuffer;
 
 public:
 	UDrawableLayer(){}
@@ -48,6 +53,10 @@ public:
 		bool IsDynamic() const {
 		return isDynamic;
 	}
+	UFUNCTION(BlueprintCallable)
+		bool IsDirty() const {
+		return isDirty;
+	}
 
 	UFUNCTION(BlueprintCallable)
 		UInstancedStaticMeshComponent* GetMesh() const {
@@ -64,14 +73,53 @@ public:
 	}
 
 	UFUNCTION(BlueprintCallable)
-		void SetDrawable(bool drawable) {
+	void SetDrawable(bool drawable) {
 		isDrawable = drawable;
+		MeshComponent->SetVisibility(drawable);
+	}
+
+	UFUNCTION(BlueprintCallable)
+		void MarkDirty() {
+		isDirty = true;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void MarkClean() {
+		isDirty = false;
 	}
 
 	UFUNCTION(BlueprintCallable)
 		void ReInitialize(int s) {
 		Size = s;
 	}
+	
+	UFUNCTION(BlueprintCallable)
+	void AddInstance(const FTransform& t) {
+		transformsBuffer.Add(t);
+		MeshComponent->AddInstance(t);
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void SetInstanceTransform(int index, const FTransform& t) {
+		auto& oldT=transformsBuffer[index];
+		if (!t.Equals(oldT,1e-4)) {
+			transformsBuffer[index] = t;
+			MarkDirty();
+		}
+	}
+	UFUNCTION(BlueprintCallable)
+	void MeshUpdate() {
+		if (isDirty) {
+			MeshComponent->BatchUpdateInstancesTransforms(0, transformsBuffer, false, true, true);
+			MarkClean();
+		}
+	}
+	UFUNCTION(BlueprintCallable)
+	void Clear() {
+		MeshComponent->DestroyComponent(true);
+		transformsBuffer.Empty();
+	}
+
 };
 
 UCLASS()
@@ -88,12 +136,14 @@ protected:
 	UResourceMapManager* manager;
 	UPROPERTY()
 	USceneComponent* root;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	int Size;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float CellSize;
 	UPROPERTY(Instanced)
 	TMap<FName, UDrawableLayer*> drawableLayers;
+	UPROPERTY()
+	TMap<FName, TScriptInterface<IPreRenderLayersProccesor>> preRenderPasses;
 	static const float GroundOffset;
 	static const float ZeroEpsilon;
 
@@ -106,7 +156,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void SetSize(int NewSize);
 	UFUNCTION(BlueprintCallable)
-	virtual void AddLayerDrawable(const FName layerName, bool isDrawable, UMaterialInterface* material);
+	virtual void AddLayerDrawable(const FName layerName, bool isDrawable, UMaterialInterface* material=nullptr, int NumCustomDataFloats=0);
 	UFUNCTION(BlueprintCallable)
 	virtual void SetLayerDrawable(const FName layerName, bool visible);
 	virtual FTransform CreateCoordTransform(int x, int y, float height, float ground=0);
@@ -117,6 +167,8 @@ public:
 	}
 	UFUNCTION(BlueprintCallable)
 	virtual void UpdateFromManager();
+	UFUNCTION(BlueprintCallable)
+	virtual void AddToPreRenderPass(const FName layerName, const TScriptInterface<IPreRenderLayersProccesor>& pass);
 	UFUNCTION(BlueprintCallable)
 	virtual UDrawableLayer* GetLayer(const FName name);
 	UFUNCTION(BlueprintCallable)

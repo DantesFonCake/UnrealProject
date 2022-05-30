@@ -26,7 +26,7 @@ void AResourceMapRendererPMC::CreateMeshesForLayer(UDrawableLayer* layer)
 	{
 		for (int i = 0; i < Size; i++)
 		{
-			layer->GetMesh()->AddInstance(CreateCoordTransform(j,i,0));
+			layer->AddInstance(CreateCoordTransform(i,j,0));
 		}
 	}
 }
@@ -42,7 +42,7 @@ void AResourceMapRendererPMC::SetSize(int NewSize)
 	GetManager()->ReInitialize(NewSize);
 }
 
-void AResourceMapRendererPMC::AddLayerDrawable(const FName layerName,bool isDrawable,UMaterialInterface* material)
+void AResourceMapRendererPMC::AddLayerDrawable(const FName layerName,bool isDrawable,UMaterialInterface* material,int NumCustomDataFloats)
 {
 	if (!GetManager()) {
 		UE_LOG(LogTemp, Error, TEXT("Manager was null"));
@@ -67,6 +67,7 @@ void AResourceMapRendererPMC::AddLayerDrawable(const FName layerName,bool isDraw
 
 	//mesh->AttachTo(RootComponent);
 	AddInstanceComponent(mesh);
+	mesh->NumCustomDataFloats = NumCustomDataFloats;
 	mesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	mesh->RegisterComponent();
 	auto layer = NewObject<UDrawableLayer>(this/*, FName(TEXT("DL_") + layerName.ToString() + GetNameSafe(this))*/);
@@ -126,23 +127,28 @@ void AResourceMapRendererPMC::UpdateFromManager()
 		else {
 			ground = GetManager()->GetNamedStaticLayer(GetManager()->GetZeroLayerName());
 		}
-		
 
-		//UE_LOG(LogTemp, Warning, TEXT("Updating layer %s"), *layerName.ToString());
-		//UE_LOG(LogTemp, Warning, TEXT("Updating from layer with size %d"), layer->GetSize());
-		//UE_LOG(LogTemp, Warning, TEXT("Updating from ground with name %s with size %d"), *ground->GetName().ToString(), ground->GetSize());
-		//UE_LOG(LogTemp, Warning, TEXT("Updating mesh with size %d"), layerMesh->GetInstanceCount());
+		auto preRenderPass = preRenderPasses.Find(layerName);
+		if (preRenderPass)
+			(*preRenderPass)->Execute_Proccess(preRenderPass->GetObject(), this, dLayer);
 
-		for (int x = 0; x < Size; x++)
+		for (int y = 0; y < Size; y++)
 		{
-			for (int y = 0; y < Size; y++)
+			for (int x = 0; x < Size; x++)
 			{
-				layerMesh->UpdateInstanceTransform(IX_INTERNAL(x, y), CreateCoordTransform(x, y, layer->GetAmount(x+1, y+1),ground->GetAmount(x+1,y+1)), false,false, true);
+				auto t = CreateCoordTransform(x, y, layer->GetAmount(x + 1, y + 1), ground->GetAmount(x + 1, y + 1));
+				dLayer->SetInstanceTransform(IX_INTERNAL(x, y), t);
 			}
 		}
-		layerMesh->MarkRenderStateDirty();
+
+		dLayer->MeshUpdate();
 		layer->MarkClean();
 	}
+}
+
+void AResourceMapRendererPMC::AddToPreRenderPass(const FName layerName, const TScriptInterface<IPreRenderLayersProccesor>& pass)
+{
+	preRenderPasses.Add(layerName, pass);
 }
 
 UDrawableLayer* AResourceMapRendererPMC::GetLayer(const FName name)
@@ -169,7 +175,8 @@ void AResourceMapRendererPMC::Clear()
 		manager->Clear();
 	}
 	for (auto& layer : drawableLayers) {
-		layer.Value->GetMesh()->DestroyComponent(true);
+		layer.Value->Clear();
 	}
 	drawableLayers.Reset();
+	preRenderPasses.Reset();
 }

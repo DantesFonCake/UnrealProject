@@ -74,7 +74,22 @@ void UDiffuseLayerProccesor::Diffuse(int Size,float DeltaTime, float Diffuse,TAr
 	}
 }
 		void UDiffuseLayerProccesor::Advect(int Size, float DeltaTime, TArray<float>& X0, TArray<float>& X, const TArray<float>& GroundLevel, const TArray<float>& U, const TArray<float>& V) {
+			int i, j, i0, j0, i1, j1;
+			float x, y, s0, t0, s1, t1, dt0;
 
+			dt0 = DeltaTime * Size;
+#pragma omp parallel for private(i)
+			for (i = 1; i <= Size; i++) {
+#pragma omp parallel for private(j)
+				for (j = 1; j <= Size; j++) {
+				x = i - dt0 * U[IX(i, j)]; y = j - dt0 * V[IX(i, j)];
+			if (x < 0.5f) x = 0.5f; if (x > Size + 0.5f) x = Size + 0.5f; i0 = (int)x; i1 = i0 + 1;
+			if (y < 0.5f) y = 0.5f; if (y > Size + 0.5f) y = Size + 0.5f; j0 = (int)y; j1 = j0 + 1;
+			s1 = x - i0; s0 = 1 - s1; t1 = y - j0; t0 = 1 - t1;
+			X[IX(i, j)] = s0 * (t0 * X0[IX(i0, j0)] + t1 * X0[IX(i0, j1)]) +
+				s1 * (t0 * X0[IX(i1, j0)] + t1 * X0[IX(i1, j1)]);
+			END_FOR
+				SetBound<0>(Size, X);
 		}
 
 		inline float UDiffuseLayerProccesor::PushDiff(int Size, const int x, const int y, const int x1, const int y1,
