@@ -3,8 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Stats/Stats.h"
 #include "Modules/ModuleManager.h"
 #include "ResourceMapManager.h"
+
+DECLARE_STATS_GROUP(TEXT("RMM_Game"), STATGROUP_RMM, STATCAT_Advanced);
 
 class RESOURCEMAPMODULE_API FResourceMapModule : public IModuleInterface
 {

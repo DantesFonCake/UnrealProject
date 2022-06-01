@@ -1,11 +1,19 @@
 #include "ResourceMapManager.h"
 #include "ResourceMapModule.h"
 
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Add_Static"), STAT_RMM_ADD_STATIC, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Add_Dynamic"), STAT_RMM_ADD_DYNAMIC, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Add_Static_Velocity"), STAT_RMM_ADD_STATIC_VELOCITY, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Proccess_Pass"), STAT_RMM_PROCESS_PASS, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Clear"), STAT_RMM_CLEAR, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_ReInitialize"), STAT_RMM_REINIT, STATGROUP_RMM)
+
 const FName UResourceMapManager::ZeroLayerName = FName(TEXT("ZeroLayer"));
 const FName UResourceMapManager::NoneVelocityFieldName = FName(TEXT("NoneField"));
 
 void UResourceMapManager::AddStaticLayer(const FName layerName)
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_STATIC);
 	auto layer = NewObject<UStaticLayer>(this/*, FName(TEXT("SL_") + layerName.ToString() + GetNameSafe(this))*/);
 	layer->Initialize(layerName, Size);
 	NamedStaticLayers.Add(layerName, layer);
@@ -13,6 +21,8 @@ void UResourceMapManager::AddStaticLayer(const FName layerName)
 
 void UResourceMapManager::AddDynamicLayer(const FName layerName, const float diffuse,const FName associatedGroundLayer=ZeroLayerName, const FName associatedDiffuseMapLayer=ZeroLayerName, const FName associatedVelocityFieldLayer = NoneVelocityFieldName)
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_DYNAMIC);
+
 	if (!LayerExists(associatedGroundLayer)) {
 		UE_LOG(LogTemp, Error, TEXT("Could not find layer named '%s'"), *associatedGroundLayer.ToString());
 		return;
@@ -33,6 +43,8 @@ void UResourceMapManager::AddDynamicLayer(const FName layerName, const float dif
 }
 
 void UResourceMapManager::AddStaticVelocityField(const FName layerName) {
+	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_STATIC_VELOCITY);
+
 	auto field = NewObject<UStaticVelocityField>(this/*, FName(TEXT("SVF_") + layerName.ToString() + GetNameSafe(this))*/);
 	field->Initialize(layerName, Size);
 	NamedStaticVelocityFields.Add(layerName, field);
@@ -55,6 +67,8 @@ bool UResourceMapManager::VelocityFieldExist(const FName LayerName) const
 
 void UResourceMapManager::ProccessPass(float DeltaTime)
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMM_PROCESS_PASS);
+
 	//UE_LOG(LogTemp,Warning,TEXT("Starting process pass"))
 	for (auto &proccesor : ProccesPass)
 	{
@@ -66,6 +80,8 @@ void UResourceMapManager::ProccessPass(float DeltaTime)
 
 void UResourceMapManager::Clear()
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMM_CLEAR);
+
 	auto zeroLayerCache = NamedStaticLayers[ZeroLayerName];
 	NamedStaticLayers.Reset();
 	NamedDynamicLayers.Reset();
@@ -99,6 +115,8 @@ void UResourceMapManager::LogStats()
 
 void UResourceMapManager::ReInitialize(int size)
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMM_REINIT);
+
 	Size = size;
 	for (auto &layer : NamedStaticLayers) {
 		layer.Value->ReInitialize(size);

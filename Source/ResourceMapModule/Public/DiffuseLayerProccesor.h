@@ -11,12 +11,18 @@ class UDiffuseLayerProccesor : public UObject, public ITimedLayersProccesor
 {
 	GENERATED_BODY()
 	template<int BoundType>
-	static inline void SetBound(int Size, TArray<float>& Field);
-	static inline float PushDiff(int Size, const int x, const int y, const int x1, const int y1,
+	static inline void SetBound(const int Size, float* Field);
+	static inline float PushDiff(const int Size, const int x, const int y, const int x1, const int y1,
+		const float* Source,
+		const float* GroundLevel);
+	static void Diffuse(const int Size, const float DeltaTime, const float Diffuse, float* X0, float* X, const float* GroundLevel, const float* DiffuseMap);
+	static void Advect(const int Size, const float DeltaTime, float* X0, float* X, const float* GroundLevel, const float* U, const float* V);/*	template<int BoundType>
+	static inline void SetBound(const int Size, TArray<float>& Field);
+	static inline float PushDiff(const int Size, const int x, const int y, const int x1, const int y1,
 		const TArray<float>& Source,
 		const TArray<float>& GroundLevel);
-	static void Diffuse(int Size, float DeltaTime, float Diffuse, TArray<float>& X0, TArray<float>& X, const TArray<float>& GroundLevel, const TArray<float>& DiffuseMap);
-	static void Advect(int Size, float DeltaTime, TArray<float>& X0, TArray<float>& X, const TArray<float>& GroundLevel, const TArray<float>& U, const TArray<float>& V);
+	static void Diffuse(const int Size, const float DeltaTime, const float Diffuse, TArray<float>& X0, TArray<float>& X, const TArray<float>& GroundLevel, const TArray<float>& DiffuseMap);
+	static void Advect(const int Size, const float DeltaTime, TArray<float>& X0, TArray<float>& X, const TArray<float>& GroundLevel, const TArray<float>& U, const TArray<float>& V);*/
 
 protected:
 	UPROPERTY()

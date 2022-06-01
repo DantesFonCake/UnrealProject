@@ -3,6 +3,12 @@
 
 #include "ResourceMapRendererPMC.h"
 
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Renderer_Create_Mesh"), STAT_RMR_CREATE_MESH, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Renderer_Add_Layer"), STAT_RMR_ADD_LAYER, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Renderer_Create_Coords"), STAT_RMR_CREATE_COORDS, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Renderer_Update"), STAT_RMR_UPDATE, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Renderer_Clear"), STAT_RMR_CLEAR, STATGROUP_RMM)
+
 const float AResourceMapRendererPMC::GroundOffset = 1;
 const float AResourceMapRendererPMC::ZeroEpsilon = 5e-3;
 
@@ -22,6 +28,7 @@ AResourceMapRendererPMC::AResourceMapRendererPMC():Size(128),CellSize(32),drawab
 
 void AResourceMapRendererPMC::CreateMeshesForLayer(UDrawableLayer* layer)
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMR_CREATE_MESH);
 	for (int j = 0; j < Size; j++)
 	{
 		for (int i = 0; i < Size; i++)
@@ -44,6 +51,8 @@ void AResourceMapRendererPMC::SetSize(int NewSize)
 
 void AResourceMapRendererPMC::AddLayerDrawable(const FName layerName,bool isDrawable,UMaterialInterface* material,int NumCustomDataFloats)
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMR_ADD_LAYER);
+
 	if (!GetManager()) {
 		UE_LOG(LogTemp, Error, TEXT("Manager was null"));
 		return;
@@ -88,6 +97,8 @@ void AResourceMapRendererPMC::SetLayerDrawable(const FName layerName, bool visib
 }
 
 FTransform AResourceMapRendererPMC::CreateCoordTransform(int x, int y, float height, float ground) {
+	SCOPE_CYCLE_COUNTER(STAT_RMR_CREATE_COORDS);
+
 	const auto meshSize = Mesh->GetBounds().GetBox().GetSize();
 	const auto cellSizeFraction = CellSize / meshSize.X;
 	const auto topLeft = -CellSize * (Size - 1) / 2.0f;
@@ -103,6 +114,8 @@ FTransform AResourceMapRendererPMC::CreateCoordTransform(int x, int y, float hei
 #define IX_INTERNAL(x,y) ((x)+(y)*Size)
 void AResourceMapRendererPMC::UpdateFromManager()
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMR_UPDATE);
+
 	for (auto& pair : drawableLayers) {
 		auto layerName = pair.Key;
 		if (!GetManager()->LayerExists(layerName)) {
@@ -171,6 +184,8 @@ void AResourceMapRendererPMC::LogStats()
 
 void AResourceMapRendererPMC::Clear()
 {
+	SCOPE_CYCLE_COUNTER(STAT_RMR_CLEAR);
+
 	if (manager) {
 		manager->Clear();
 	}
