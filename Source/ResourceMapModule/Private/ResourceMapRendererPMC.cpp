@@ -106,8 +106,8 @@ FTransform AResourceMapRendererPMC::CreateCoordTransform(int x, int y, float hei
 	const float cY = topLeft + y * CellSize;
 	float sZ = height/ meshSize.X;
 	if(FMath::IsNearlyEqual(sZ,0,ZeroEpsilon))
-		return FTransform(FRotator(0), FVector(cX, cY, sZ*meshSize.X/2+ground-GroundOffset), FVector(cellSizeFraction, cellSizeFraction, 0));
-	return FTransform(FRotator(0), FVector(cX, cY, sZ*meshSize.X/2+ground), FVector(cellSizeFraction, cellSizeFraction, sZ));
+		return FTransform(FRotator(0), FVector(cX, cY, height/2+ground-GroundOffset), FVector(cellSizeFraction, cellSizeFraction, 0));
+	return FTransform(FRotator(0), FVector(cX, cY, height/2+ground), FVector(cellSizeFraction, cellSizeFraction, sZ));
 }
 
 
