@@ -3,7 +3,7 @@
 
 DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Add_Static"), STAT_RMM_ADD_STATIC, STATGROUP_RMM)
 DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Add_Dynamic"), STAT_RMM_ADD_DYNAMIC, STATGROUP_RMM)
-DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Add_Static_Velocity"), STAT_RMM_ADD_STATIC_VELOCITY, STATGROUP_RMM)
+DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Add_Velocity"), STAT_RMM_ADD_VELOCITY, STATGROUP_RMM)
 DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Proccess_Pass"), STAT_RMM_PROCESS_PASS, STATGROUP_RMM)
 DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_Clear"), STAT_RMM_CLEAR, STATGROUP_RMM)
 DECLARE_CYCLE_STAT(TEXT("Resource_Map_Manager_ReInitialize"), STAT_RMM_REINIT, STATGROUP_RMM)
@@ -42,12 +42,12 @@ void UResourceMapManager::AddDynamicLayer(const FName layerName, const float dif
 	NamedStaticLayers.Add(layerName, layer);
 }
 
-void UResourceMapManager::AddStaticVelocityField(const FName layerName) {
-	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_STATIC_VELOCITY);
+void UResourceMapManager::AddVelocityField(const FName layerName,const float Viscosity) {
+	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_VELOCITY);
 
-	auto field = NewObject<UStaticVelocityField>(this/*, FName(TEXT("SVF_") + layerName.ToString() + GetNameSafe(this))*/);
-	field->Initialize(layerName, Size);
-	NamedStaticVelocityFields.Add(layerName, field);
+	auto field = NewObject<UVelocityField>(this/*, FName(TEXT("SVF_") + layerName.ToString() + GetNameSafe(this))*/);
+	field->Initialize(layerName, Size,Viscosity);
+	NamedVelocityFields.Add(layerName, field);
 }
 
 bool UResourceMapManager::LayerExists(const FName LayerName) const
@@ -60,9 +60,9 @@ bool UResourceMapManager::IsDynamic(const FName LayerName) const
 	return NamedDynamicLayers.Contains(LayerName);
 }
 
-bool UResourceMapManager::VelocityFieldExist(const FName LayerName) const 
+bool UResourceMapManager::VelocityFieldExist(const FName LayerName) const
 {
-	return NamedStaticVelocityFields.Contains(LayerName) /*|| NamedDynamicVelocityFields.Contains(LayerName)*/;
+	return NamedVelocityFields.Contains(LayerName);
 }
 
 void UResourceMapManager::ProccessPass(float DeltaTime)
@@ -85,7 +85,7 @@ void UResourceMapManager::Clear()
 	auto zeroLayerCache = NamedStaticLayers[ZeroLayerName];
 	NamedStaticLayers.Reset();
 	NamedDynamicLayers.Reset();
-	NamedStaticVelocityFields.Reset();
+	NamedVelocityFields.Reset();
 	ProccesPass.Empty();
 	NamedStaticLayers.Add(ZeroLayerName, zeroLayerCache);
 }
@@ -105,12 +105,12 @@ void UResourceMapManager::LogStats()
 	for (auto& layer : NamedDynamicLayers) {
 		UE_LOG(LogTemp, Warning, TEXT("Named Dynamic Layer - %s, with size - %d"), *layer.Key.ToString(), layer.Value->Size);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Named Static Velocity Fields count - %d"), NamedStaticVelocityFields.Num());
-	for (auto& layer : NamedStaticVelocityFields) {
-		UE_LOG(LogTemp, Warning, TEXT("Named Static Velocity Field - %s, with size - %d"), *layer.Key.ToString(), layer.Value->Size);
+	UE_LOG(LogTemp, Warning, TEXT("Named Velocity Fields count - %d"), NamedVelocityFields.Num());
+	for (auto& layer : NamedVelocityFields) {
+		UE_LOG(LogTemp, Warning, TEXT("Named Velocity Field - %s, with size - %d"), *layer.Key.ToString(), layer.Value->Size);
 	}
 	UE_LOG(LogTemp, Warning, TEXT("Procces Passes count - %d"), ProccesPass.Num());
-	
+
 }
 
 void UResourceMapManager::ReInitialize(int size)
@@ -124,7 +124,7 @@ void UResourceMapManager::ReInitialize(int size)
 	for (auto &layer : NamedDynamicLayers) {
 		layer.Value->ReInitialize(size);
 	}
-	for (auto &layer : NamedStaticVelocityFields) {
+	for (auto &layer : NamedVelocityFields) {
 		layer.Value->ReInitialize(size);
 	}
 }
@@ -132,4 +132,3 @@ void UResourceMapManager::ReInitialize(int size)
 int UResourceMapManager::GetSize() const {
 	return Size;
 }
-

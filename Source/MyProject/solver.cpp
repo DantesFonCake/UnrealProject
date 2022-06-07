@@ -40,40 +40,6 @@ void lin_solve(int N, int b, float* x, float* x0, float a, float c)
 	}
 }
 
-float clamp(float v, float min, float max, int& d)
-{
-	if (v < min)
-	{
-		d--;
-		return min;
-	}
-	if (v > max)
-	{
-		return max;
-	}
-	return v;
-}
-
-void lin_solve(int N, int b, float* x, float* x0, const float* gl, float a)
-{
-	int i, j;
-	int d = 4;
-	for (int k = 0; k < 20; k++)
-	{
-		FOR_EACH_CELL
-			const float cX = x0[IX(i, j)];
-			const float cH = gl[IX(i, j)];
-			const float lX = clamp(x[IX(i-1, j)] + gl[IX(i-1, j)] - cH, 0, x[IX(i-1, j)], d);
-			const float rX = clamp(x[IX(i+1, j)] + gl[IX(i+1, j)] - cH, 0, x[IX(i+1, j)], d);
-			const float uX = clamp(x[IX(i, j-1)] + gl[IX(i, j-1)] - cH, 0, x[IX(i, j-1)], d);
-			const float dX = clamp(x[IX(i, j+1)] + gl[IX(i, j+1)] - cH, 0, x[IX(i, j+1)], d);
-			float c = 1 + 4 * a;
-			x[IX(i, j)] = (cX + a * (
-				lX + rX + uX + dX)) / c;
-		END_FOR
-		set_bnd(N, b, x);
-	}
-}
 
 void diffuse(int N, int b, float* x, float* x0, float diff, float dt)
 {

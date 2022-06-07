@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "StaticLayer.h"
 #include "DynamicLayer.h"
-#include "StaticVelocityField.h"
+#include "VelocityField.h"
 #include "TimedLayersProccesor.h"
 #include "ResourceMapManager.generated.h"
 
@@ -20,7 +20,7 @@ class UResourceMapManager : public UObject {
 	UPROPERTY(Instanced)
 	TMap<FName, UDynamicLayer*> NamedDynamicLayers;
 	UPROPERTY(Instanced)
-	TMap<FName, UStaticVelocityField*> NamedStaticVelocityFields;
+	TMap<FName, UVelocityField*> NamedVelocityFields;
 	UPROPERTY()
 	TArray<TScriptInterface<ITimedLayersProccesor>> ProccesPass;
 	UPROPERTY(EditDefaultsOnly)
@@ -28,13 +28,13 @@ class UResourceMapManager : public UObject {
 	//static const int MeshSectionSize = 16;
 
 public:
-	UResourceMapManager():NamedStaticLayers(),NamedDynamicLayers(),NamedStaticVelocityFields(),ProccesPass(), Size(0)
+	UResourceMapManager():NamedStaticLayers(),NamedDynamicLayers(),NamedVelocityFields(),ProccesPass(), Size(0)
 	{
 		auto layer = CreateDefaultSubobject<UStaticLayer>(ZeroLayerName);
 		layer->Initialize(ZeroLayerName, Size);
 		NamedStaticLayers.Add(ZeroLayerName, layer);
 	};
-	UResourceMapManager(int size): NamedStaticLayers(), NamedDynamicLayers(), NamedStaticVelocityFields(), ProccesPass(),Size(size) {
+	UResourceMapManager(int size): NamedStaticLayers(), NamedDynamicLayers(), NamedVelocityFields(), ProccesPass(),Size(size) {
 		//AddStaticLayer(ZeroLayerName);
 		auto layer = CreateDefaultSubobject<UStaticLayer>(ZeroLayerName);
 		layer->Initialize(ZeroLayerName, Size);
@@ -46,8 +46,8 @@ public:
 		return NamedDynamicLayers[layer];
 	}
 	UFUNCTION(BlueprintCallable)
-	UStaticVelocityField* GetNamedStaticVelocityField(FName field) {
-		return NamedStaticVelocityFields[field];
+	UVelocityField* GetNamedVelocityField(FName field) {
+		return NamedVelocityFields[field];
 	}
 	UFUNCTION(BlueprintCallable)
 	UStaticLayer* GetNamedStaticLayer(const FName LayerName) {
@@ -69,7 +69,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void AddDynamicLayer(const FName LayerName, float diffuse, const FName AssociatedGroundLayer, const FName AssociatedDiffuseMapLayer, FName AssociatedVelocityFieldLayer);
 	UFUNCTION(BlueprintCallable)
-	virtual void AddStaticVelocityField(const FName LayerName);
+	virtual void AddVelocityField(const FName LayerName, const float Viscosity);
 	UFUNCTION(BlueprintCallable)
 	virtual bool LayerExists(const FName LayerName) const;
 	UFUNCTION(BlueprintCallable)
