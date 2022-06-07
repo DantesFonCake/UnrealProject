@@ -13,7 +13,6 @@ class RESOURCEMAPMODULE_API FResourceMapModule : public IModuleInterface
 {
 public:
 
-	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
@@ -23,5 +22,3 @@ public:
 		return ref;
 	}
 };
-
-//DECLARE_LOG_CATEGORY_EXTERN(ResourceMapModuleLogs, Error, All);

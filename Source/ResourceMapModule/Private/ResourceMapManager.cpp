@@ -14,7 +14,7 @@ const FName UResourceMapManager::NoneVelocityFieldName = FName(TEXT("NoneField")
 void UResourceMapManager::AddStaticLayer(const FName layerName)
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_STATIC);
-	auto layer = NewObject<UStaticLayer>(this/*, FName(TEXT("SL_") + layerName.ToString() + GetNameSafe(this))*/);
+	auto layer = NewObject<UStaticLayer>(this);
 	layer->Initialize(layerName, Size);
 	NamedStaticLayers.Add(layerName, layer);
 }
@@ -36,7 +36,7 @@ void UResourceMapManager::AddDynamicLayer(const FName layerName, const float dif
 		return;
 	};
 
-	auto layer = NewObject<UDynamicLayer>(this/*, FName(TEXT("DYNL_") + layerName.ToString() + GetNameSafe(this))*/);
+	auto layer = NewObject<UDynamicLayer>(this);
 	layer->Initialize(layerName, Size, diffuse, associatedGroundLayer, associatedDiffuseMapLayer, associatedVelocityFieldLayer);
 	NamedDynamicLayers.Add(layerName,layer);
 	NamedStaticLayers.Add(layerName, layer);
@@ -45,7 +45,7 @@ void UResourceMapManager::AddDynamicLayer(const FName layerName, const float dif
 void UResourceMapManager::AddVelocityField(const FName layerName,const float Viscosity) {
 	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_VELOCITY);
 
-	auto field = NewObject<UVelocityField>(this/*, FName(TEXT("SVF_") + layerName.ToString() + GetNameSafe(this))*/);
+	auto field = NewObject<UVelocityField>(this);
 	field->Initialize(layerName, Size,Viscosity);
 	NamedVelocityFields.Add(layerName, field);
 }
@@ -69,12 +69,9 @@ void UResourceMapManager::ProccessPass(float DeltaTime)
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMM_PROCESS_PASS);
 
-	//UE_LOG(LogTemp,Warning,TEXT("Starting process pass"))
 	for (auto &proccesor : ProccesPass)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("Start Procces"));
 		proccesor->Execute_Proccess(proccesor.GetObject(), this, DeltaTime);
-		//UE_LOG(LogTemp, Warning, TEXT("End Procces"));
 	}
 }
 

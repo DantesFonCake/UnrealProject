@@ -74,7 +74,7 @@ void UDiffuseLayerProccesor::VelocityStep(int Size, float* U, float* V, float* U
 void UDiffuseLayerProccesor::Proccess_Implementation(UResourceMapManager* Manager, float DeltaTime)
 {
 	SCOPE_CYCLE_COUNTER(STAT_DIFFUSE);
-	//UE_LOG(LogTemp, Warning, TEXT("Start Procces internal"));
+
 
 	const auto layer = Manager->GetNamedDynamicLayer(LayerToProcces); 
 	auto layerAmountArray = layer->GetAmountArray().GetData();
@@ -84,9 +84,7 @@ void UDiffuseLayerProccesor::Proccess_Implementation(UResourceMapManager* Manage
 	auto groundArray = ground->GetAmountArray().GetData();
 	const auto diffuseMap = Manager->GetNamedStaticLayer(layer->GetAssociatedDiffuseMapName());
 	auto diffuseMapArray = diffuseMap->GetAmountArray().GetData();
-	/*for (auto& elem : layer->GetAmountArray()) {
-		UE_LOG(LogTemp, Warning, TEXT("%f"), elem);
-	}*/
+
 	SetBound<0>(Size, layerAmountArray);
 	SetBound<0>(Size, groundArray);
 	SetBound<0>(Size, diffuseMapArray);
@@ -103,8 +101,6 @@ void UDiffuseLayerProccesor::Proccess_Implementation(UResourceMapManager* Manage
 	}
 	FMemory::Memcpy(layerAmountArray, layerFutureArray, FLAT_SIZE(Size)*sizeof(float));
 	layer->MarkDirty();
-	//UE_LOG(LogTemp, Warning, TEXT("End Procces internal"));
-
 }
 
 #define GAUSS_CLAMP(s,g) if((s)>=0) { if((s)<=xCenter){ totalNet-=gCenter-g;} c+=a;}

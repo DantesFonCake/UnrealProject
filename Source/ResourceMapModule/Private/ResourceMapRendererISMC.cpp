@@ -16,13 +16,12 @@ const float AResourceMapRendererISMC::ZeroEpsilon = 5e-3;
 AResourceMapRendererISMC::AResourceMapRendererISMC():Size(128),CellSize(32),drawableLayers()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Constructor Called"));
-	root = /*NewObject<USceneComponent>(this)*/CreateDefaultSubobject<USceneComponent>(FName(TEXT("RootScene_")+GetNameSafe(this)));
+	root = CreateDefaultSubobject<USceneComponent>(FName(TEXT("RootScene_")+GetNameSafe(this)));
 	SetRootComponent(root);
 	root->RegisterComponent();
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	Mesh = CubeMesh.Object;
-	//UE_LOG(LogTemp, Warning, TEXT("Mesh Size %f"), Mesh->GetBounds().GetBox().GetSize().X)
-	manager = /*NewObject<UResourceMapManager>(this)*/CreateDefaultSubobject<UResourceMapManager>(FName(TEXT("RM_") + GetNameSafe(this)));
+	manager = CreateDefaultSubobject<UResourceMapManager>(FName(TEXT("RM_") + GetNameSafe(this)));
 	manager->ReInitialize(Size);
 }
 
@@ -67,7 +66,7 @@ void AResourceMapRendererISMC::AddLayerDrawable(const FName layerName,bool isDra
 		UE_LOG(LogTemp, Warning, TEXT("'%s' layer already exist"), *layerName.ToString());
 		return;
 	}
-	auto mesh = NewObject<UInstancedStaticMeshComponent>(this/*, FName(TEXT("ISMC_")+layerName.ToString() + GetNameSafe(this))*/);
+	auto mesh = NewObject<UInstancedStaticMeshComponent>(this);
 	mesh->SetWorldTransform(this->GetTransform());
 	mesh->SetStaticMesh(Mesh);
 	mesh->bCastDynamicShadow = false;
@@ -79,10 +78,8 @@ void AResourceMapRendererISMC::AddLayerDrawable(const FName layerName,bool isDra
 	mesh->NumCustomDataFloats = NumCustomDataFloats;
 	mesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	mesh->RegisterComponent();
-	auto layer = NewObject<UDrawableLayer>(this/*, FName(TEXT("DL_") + layerName.ToString() + GetNameSafe(this))*/);
+	auto layer = NewObject<UDrawableLayer>(this);
 	layer->Initialize(Size, mesh,isDrawable,GetManager()->IsDynamic(layerName));
-	//UE_LOG(LogTemp, Warning, TEXT("Layer created %d"), layer->GetSize());
-	//UE_LOG(LogTemp, Warning, TEXT("ground offset %f"), GroundOffset);
 	CreateMeshesForLayer(layer);
 	drawableLayers.Add(layerName, layer);
 }

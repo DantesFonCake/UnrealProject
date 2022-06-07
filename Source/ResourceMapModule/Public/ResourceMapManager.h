@@ -25,7 +25,6 @@ class UResourceMapManager : public UObject {
 	TArray<TScriptInterface<ITimedLayersProccesor>> ProccesPass;
 	UPROPERTY(EditDefaultsOnly)
 	int Size;
-	//static const int MeshSectionSize = 16;
 
 public:
 	UResourceMapManager():NamedStaticLayers(),NamedDynamicLayers(),NamedVelocityFields(),ProccesPass(), Size(0)
@@ -35,7 +34,6 @@ public:
 		NamedStaticLayers.Add(ZeroLayerName, layer);
 	};
 	UResourceMapManager(int size): NamedStaticLayers(), NamedDynamicLayers(), NamedVelocityFields(), ProccesPass(),Size(size) {
-		//AddStaticLayer(ZeroLayerName);
 		auto layer = CreateDefaultSubobject<UStaticLayer>(ZeroLayerName);
 		layer->Initialize(ZeroLayerName, Size);
 		NamedStaticLayers.Add(ZeroLayerName, layer);
