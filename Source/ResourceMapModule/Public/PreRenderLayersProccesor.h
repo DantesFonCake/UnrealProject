@@ -17,5 +17,5 @@ class IPreRenderLayersProccesor {
 
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void Proccess(AResourceMapRendererPMC* renderer, UDrawableLayer* layer);
+	void Proccess(AResourceMapRendererISMC* renderer, UDrawableLayer* layer);
 };

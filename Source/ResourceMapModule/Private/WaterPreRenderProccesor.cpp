@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "WaterPreRenderProccesor.h"
-#include "ResourceMapRendererPMC.h"
+#include "ResourceMapRendererISMC.h"
 
 #define IX_INTERNAL(x,y) ((y) * (Size) + (x))
 const float UWaterPreRenderProccesor::WaterFreezingTemperature=0;
-void UWaterPreRenderProccesor::Proccess_Implementation(AResourceMapRendererPMC * Renderer, UDrawableLayer* layer)
+void UWaterPreRenderProccesor::Proccess_Implementation(AResourceMapRendererISMC * Renderer, UDrawableLayer* layer)
 {
 	auto temperature = Renderer->GetManager()->GetNamedStaticLayer(TemperatureLayerName);
 	auto mesh = layer->GetMesh();

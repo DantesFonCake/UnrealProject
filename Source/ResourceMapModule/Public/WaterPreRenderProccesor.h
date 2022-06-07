@@ -23,5 +23,5 @@ public:
 		TemperatureLayerName = temperatureLayer;
 	}
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
-	void Proccess(AResourceMapRendererPMC* Renderer, UDrawableLayer* layer); virtual void Proccess_Implementation(AResourceMapRendererPMC* Renderer, UDrawableLayer* layer) override;
+	void Proccess(AResourceMapRendererISMC* Renderer, UDrawableLayer* layer); virtual void Proccess_Implementation(AResourceMapRendererISMC* Renderer, UDrawableLayer* layer) override;
 };
