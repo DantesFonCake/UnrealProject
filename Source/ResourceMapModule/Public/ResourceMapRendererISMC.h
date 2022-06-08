@@ -32,8 +32,7 @@ protected:
 
 public:
 	UDrawableLayer(){}
-	UDrawableLayer(FName name, int size, bool defaultDrawable, UInstancedStaticMeshComponent* mesh) :LayerName(name), Size(size), isDrawable(defaultDrawable), MeshComponent(mesh)
-	{}
+
 	UFUNCTION(BlueprintCallable)
 		FName GetName() const {
 		return LayerName;
@@ -92,7 +91,7 @@ public:
 		void ReInitialize(int s) {
 		Size = s;
 	}
-	
+
 	UFUNCTION(BlueprintCallable)
 	void AddInstance(const FTransform& t) {
 		transformsBuffer.Add(t);
@@ -126,8 +125,8 @@ UCLASS()
 class RESOURCEMAPMODULE_API AResourceMapRendererISMC : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	AResourceMapRendererISMC();
 
 protected:
@@ -148,7 +147,7 @@ protected:
 
 	virtual void CreateMeshesForLayer(UDrawableLayer* layer);
 
-public:	
+public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere)
 	UStaticMesh* Mesh;
 
