@@ -142,6 +142,8 @@ protected:
 	TMap<FName, UDrawableLayer*> drawableLayers;
 	UPROPERTY()
 	TMap<FName, TScriptInterface<IPreRenderLayersProccesor>> preRenderPasses;
+	UPROPERTY()
+	bool bInitialized;
 	static const float GroundOffset;
 	static const float ZeroEpsilon;
 
@@ -152,7 +154,7 @@ public:
 	UStaticMesh* Mesh;
 
 	UFUNCTION(BlueprintCallable)
-	virtual void SetSize(int NewSize);
+	virtual void Initialize(UResourceMapManager* m, int s, float cS);
 	UFUNCTION(BlueprintCallable)
 	virtual void AddLayerDrawable(const FName layerName, bool isDrawable, UMaterialInterface* material=nullptr, int NumCustomDataFloats=0);
 	UFUNCTION(BlueprintCallable)

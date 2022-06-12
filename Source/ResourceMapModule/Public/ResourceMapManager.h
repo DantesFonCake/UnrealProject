@@ -23,21 +23,15 @@ class UResourceMapManager : public UObject {
 	TMap<FName, UVelocityField*> NamedVelocityFields;
 	UPROPERTY()
 	TArray<TScriptInterface<ITimedLayersProccesor>> ProccesPass;
+	UPROPERTY()
+	bool bInitialized;
 	UPROPERTY(EditDefaultsOnly)
 	int Size;
 
 public:
-	UResourceMapManager():NamedStaticLayers(),NamedDynamicLayers(),NamedVelocityFields(),ProccesPass(), Size(0)
+	UResourceMapManager():NamedStaticLayers(),NamedDynamicLayers(),NamedVelocityFields(),ProccesPass(), bInitialized(false), Size(0)
 	{
-		auto layer = CreateDefaultSubobject<UStaticLayer>(ZeroLayerName);
-		layer->Initialize(ZeroLayerName, Size);
-		NamedStaticLayers.Add(ZeroLayerName, layer);
 	};
-	UResourceMapManager(int size): NamedStaticLayers(), NamedDynamicLayers(), NamedVelocityFields(), ProccesPass(),Size(size) {
-		auto layer = CreateDefaultSubobject<UStaticLayer>(ZeroLayerName);
-		layer->Initialize(ZeroLayerName, Size);
-		NamedStaticLayers.Add(ZeroLayerName, layer);
-	}
 
 	UFUNCTION(BlueprintCallable)
 	UDynamicLayer* GetNamedDynamicLayer(FName layer) {
@@ -53,6 +47,8 @@ public:
 	}
 	UFUNCTION(BlueprintCallable)
 	virtual void ReInitialize(int s);
+	UFUNCTION(BlueprintCallable)
+	virtual void Initialize(int s);
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AddStaticLayer(const FName LayerName);

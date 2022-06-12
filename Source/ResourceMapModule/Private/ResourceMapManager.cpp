@@ -14,6 +14,7 @@ const FName UResourceMapManager::NoneVelocityFieldName = FName(TEXT("NoneField")
 void UResourceMapManager::AddStaticLayer(const FName layerName)
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_STATIC);
+	check(bInitialized);
 	auto layer = NewObject<UStaticLayer>(this);
 	layer->Initialize(layerName, Size);
 	NamedStaticLayers.Add(layerName, layer);
@@ -22,7 +23,7 @@ void UResourceMapManager::AddStaticLayer(const FName layerName)
 void UResourceMapManager::AddDynamicLayer(const FName layerName, const float diffuse,const FName associatedGroundLayer=ZeroLayerName, const FName associatedDiffuseMapLayer=ZeroLayerName, const FName associatedVelocityFieldLayer = NoneVelocityFieldName)
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMM_ADD_DYNAMIC);
-
+	check(bInitialized);
 	if (!LayerExists(associatedGroundLayer)) {
 		UE_LOG(LogTemp, Error, TEXT("Could not find layer named '%s'"), *associatedGroundLayer.ToString());
 		return;
@@ -52,23 +53,26 @@ void UResourceMapManager::AddVelocityField(const FName layerName,const float Vis
 
 bool UResourceMapManager::LayerExists(const FName LayerName) const
 {
+	check(bInitialized);
 	return NamedStaticLayers.Contains(LayerName)||NamedDynamicLayers.Contains(LayerName);
 }
 
 bool UResourceMapManager::IsDynamic(const FName LayerName) const
 {
+	check(bInitialized);
 	return NamedDynamicLayers.Contains(LayerName);
 }
 
 bool UResourceMapManager::VelocityFieldExist(const FName LayerName) const
 {
+	check(bInitialized);
 	return NamedVelocityFields.Contains(LayerName);
 }
 
 void UResourceMapManager::ProccessPass(float DeltaTime)
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMM_PROCESS_PASS);
-
+	check(bInitialized);
 	for (auto &proccesor : ProccesPass)
 	{
 		proccesor->Execute_Proccess(proccesor.GetObject(), this, DeltaTime);
@@ -78,7 +82,7 @@ void UResourceMapManager::ProccessPass(float DeltaTime)
 void UResourceMapManager::Clear()
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMM_CLEAR);
-
+	check(bInitialized);
 	auto zeroLayerCache = NamedStaticLayers[ZeroLayerName];
 	NamedStaticLayers.Reset();
 	NamedDynamicLayers.Reset();
@@ -89,11 +93,13 @@ void UResourceMapManager::Clear()
 
 void UResourceMapManager::AddProccesorToProccesPass(TScriptInterface<ITimedLayersProccesor>& proccesor)
 {
+	check(bInitialized);
 	ProccesPass.Add(proccesor);
 }
 
 void UResourceMapManager::LogStats()
 {
+	check(bInitialized);
 	UE_LOG(LogTemp, Warning, TEXT("Named Static Layers count - %d"), NamedStaticLayers.Num());
 	for (auto& layer : NamedStaticLayers) {
 		UE_LOG(LogTemp, Warning, TEXT("Named Static Layer - %s, with size - %d"), *layer.Key.ToString(), layer.Value->Size);
@@ -113,6 +119,7 @@ void UResourceMapManager::LogStats()
 void UResourceMapManager::ReInitialize(int size)
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMM_REINIT);
+	check(bInitialized);
 
 	Size = size;
 	for (auto &layer : NamedStaticLayers) {
@@ -126,6 +133,15 @@ void UResourceMapManager::ReInitialize(int size)
 	}
 }
 
+void UResourceMapManager::Initialize(int size)
+{
+	Size = size;
+	bInitialized = true;
+
+	AddStaticLayer(ZeroLayerName);
+}
+
 int UResourceMapManager::GetSize() const {
+	check(bInitialized);
 	return Size;
 }

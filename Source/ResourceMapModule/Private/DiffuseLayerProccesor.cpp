@@ -76,10 +76,11 @@ void UDiffuseLayerProccesor::Proccess_Implementation(UResourceMapManager* Manage
 	SCOPE_CYCLE_COUNTER(STAT_DIFFUSE);
 
 
+	const int Size = Manager->GetSize();
 	const auto layer = Manager->GetNamedDynamicLayer(LayerToProcces); 
 	auto layerAmountArray = layer->GetAmountArray().GetData();
-	auto layerFutureArray = layer->GetAmountArray().GetData();
-	const int Size = Manager->GetSize();
+	layer->GetFutureArray().Init(0, FLAT_SIZE(Size));
+	auto layerFutureArray = layer->GetFutureArray().GetData();
 	const auto ground = Manager->GetNamedStaticLayer(layer->GetAssociatedGroundName());
 	auto groundArray = ground->GetAmountArray().GetData();
 	const auto diffuseMap = Manager->GetNamedStaticLayer(layer->GetAssociatedDiffuseMapName());
@@ -104,7 +105,7 @@ void UDiffuseLayerProccesor::Proccess_Implementation(UResourceMapManager* Manage
 }
 
 #define GAUSS_CLAMP(s,g) if((s)>=0) { if((s)<=xCenter){ totalNet-=gCenter-g;} c+=a;}
-#define GAUSS_CLAMP_D(s,g) if((s)>=0) { if((s)<=xCenter){ totalNet-=(gCenter-g)*dCenter;} c+=a*dCenter;}
+#define GAUSS_CLAMP_D(s,g) if((s)>=0) { if((s)<xCenter){ totalNet-=(gCenter-g)*dCenter;} c+=a*dCenter;}
 
 void UDiffuseLayerProccesor::Diffuse(const int Size,const float DeltaTime, const float Diffuse,float* X0, float* X,
 	const float* GroundLevel, const float* DiffuseMap)

@@ -13,7 +13,7 @@ const float AResourceMapRendererISMC::GroundOffset = 1;
 const float AResourceMapRendererISMC::ZeroEpsilon = 5e-3;
 
 // Sets default values
-AResourceMapRendererISMC::AResourceMapRendererISMC():Size(128),CellSize(32),drawableLayers()
+AResourceMapRendererISMC::AResourceMapRendererISMC():Size(0),CellSize(0),drawableLayers(),bInitialized(false)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Constructor Called"));
 	root = CreateDefaultSubobject<USceneComponent>(FName(TEXT("RootScene_")+GetNameSafe(this)));
@@ -21,13 +21,12 @@ AResourceMapRendererISMC::AResourceMapRendererISMC():Size(128),CellSize(32),draw
 	root->RegisterComponent();
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> CubeMesh(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	Mesh = CubeMesh.Object;
-	manager = CreateDefaultSubobject<UResourceMapManager>(FName(TEXT("RM_") + GetNameSafe(this)));
-	manager->ReInitialize(Size);
 }
 
 void AResourceMapRendererISMC::CreateMeshesForLayer(UDrawableLayer* layer)
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMR_CREATE_MESH);
+	check(bInitialized);
 	for (int j = 0; j < Size; j++)
 	{
 		for (int i = 0; i < Size; i++)
@@ -37,21 +36,19 @@ void AResourceMapRendererISMC::CreateMeshesForLayer(UDrawableLayer* layer)
 	}
 }
 
-void AResourceMapRendererISMC::SetSize(int NewSize)
+void AResourceMapRendererISMC::Initialize(UResourceMapManager* m, int s, float cS)
 {
-	if (NewSize == Size)
-		return;
-	Size = NewSize;
-	for (auto& pair : drawableLayers) {
-		pair.Value->ReInitialize(NewSize);
-	}
-	GetManager()->ReInitialize(NewSize);
+	Size = s;
+	CellSize = cS;
+	manager = m;
+
+	bInitialized = true;
 }
 
 void AResourceMapRendererISMC::AddLayerDrawable(const FName layerName,bool isDrawable,UMaterialInterface* material,int NumCustomDataFloats)
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMR_ADD_LAYER);
-
+	check(bInitialized);
 	if (!GetManager()) {
 		UE_LOG(LogTemp, Error, TEXT("Manager was null"));
 		return;
@@ -74,10 +71,10 @@ void AResourceMapRendererISMC::AddLayerDrawable(const FName layerName,bool isDra
 		mesh->SetMaterial(0,material);
 
 	//mesh->AttachTo(RootComponent);
-	AddInstanceComponent(mesh);
 	mesh->NumCustomDataFloats = NumCustomDataFloats;
-	mesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	mesh->SetupAttachment(RootComponent);
 	mesh->RegisterComponent();
+	AddInstanceComponent(mesh);
 	auto layer = NewObject<UDrawableLayer>(this);
 	layer->Initialize(Size, mesh,isDrawable,GetManager()->IsDynamic(layerName));
 	CreateMeshesForLayer(layer);
@@ -86,6 +83,7 @@ void AResourceMapRendererISMC::AddLayerDrawable(const FName layerName,bool isDra
 
 void AResourceMapRendererISMC::SetLayerDrawable(const FName layerName, bool visible)
 {
+	check(bInitialized);
 	if (!drawableLayers.Contains(layerName)) {
 		UE_LOG(LogTemp, Error, TEXT("Could not find layer named '%s'"), *layerName.ToString());
 		return;
@@ -95,7 +93,7 @@ void AResourceMapRendererISMC::SetLayerDrawable(const FName layerName, bool visi
 
 FTransform AResourceMapRendererISMC::CreateCoordTransform(int x, int y, float height, float ground) {
 	SCOPE_CYCLE_COUNTER(STAT_RMR_CREATE_COORDS);
-
+	check(bInitialized);
 	const auto meshSize = Mesh->GetBounds().GetBox().GetSize();
 	const auto cellSizeFraction = CellSize / meshSize.X;
 	const auto topLeft = -CellSize * (Size - 1) / 2.0f;
@@ -112,7 +110,7 @@ FTransform AResourceMapRendererISMC::CreateCoordTransform(int x, int y, float he
 void AResourceMapRendererISMC::UpdateFromManager()
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMR_UPDATE);
-
+	check(bInitialized);
 	for (auto& pair : drawableLayers) {
 		auto layerName = pair.Key;
 		if (!GetManager()->LayerExists(layerName)) {
@@ -158,16 +156,19 @@ void AResourceMapRendererISMC::UpdateFromManager()
 
 void AResourceMapRendererISMC::AddToPreRenderPass(const FName layerName, const TScriptInterface<IPreRenderLayersProccesor>& pass)
 {
+	check(bInitialized);
 	preRenderPasses.Add(layerName, pass);
 }
 
 UDrawableLayer* AResourceMapRendererISMC::GetLayer(const FName name)
 {
+	check(bInitialized);
 	return drawableLayers[name];
 }
 
 void AResourceMapRendererISMC::LogStats()
 {
+	check(bInitialized);
 	UE_LOG(LogTemp, Warning, TEXT("Mesh Size %f"), Mesh->GetBounds().GetBox().GetSize().X);
 	UE_LOG(LogTemp, Warning, TEXT("Size %d"), Size);
 	UE_LOG(LogTemp, Warning, TEXT("Drawable layers count: %d"), drawableLayers.Num());
@@ -182,10 +183,10 @@ void AResourceMapRendererISMC::LogStats()
 void AResourceMapRendererISMC::Clear()
 {
 	SCOPE_CYCLE_COUNTER(STAT_RMR_CLEAR);
-
-	if (manager) {
+	check(bInitialized);
+	/*if (manager) {
 		manager->Clear();
-	}
+	}*/
 	for (auto& layer : drawableLayers) {
 		layer.Value->Clear();
 	}

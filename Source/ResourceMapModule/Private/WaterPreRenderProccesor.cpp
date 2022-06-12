@@ -19,7 +19,8 @@ void UWaterPreRenderProccesor::Proccess_Implementation(AResourceMapRendererISMC 
 		{
 			if (temperature->GetAmount(x + 1, y + 1) <= WaterFreezingTemperature)
 				mesh->PerInstanceSMCustomData[IX_INTERNAL(x, y)] = 1;
-
+			else
+				mesh->PerInstanceSMCustomData[IX_INTERNAL(x, y)] = 0;
 		}
 	}
 
